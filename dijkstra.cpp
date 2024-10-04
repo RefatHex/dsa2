@@ -1,66 +1,84 @@
-#include <bits/stdc++.h>
+//DIJKSTRA's ALGORITHM
+#include<bits/stdc++.h>
 using namespace std;
 
-const int INF = INT_MAX;
+int dist[100];
+bool visited[100];
 int V, E;
 
-void dijkstra(vector<vector<pair<int, int>>>& adj, int source) {
-    vector<int> dist(V, INF);  // Distance array
-    vector<bool> visited(V, false);  // Visited array
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+void initialize(){
+    for(int i=0; i<100; i++){
+        dist[i] = INT_MAX;
+        visited[i] = false;
+    }
+}
 
+int findMinimum(){
+    int minimum = -1;
+
+    for(int i=0; i<V; i++){
+        if(!visited[i] && (minimum==-1 || dist[i]<dist[minimum])){
+            minimum = i;
+        }
+    }
+
+    return minimum;
+}
+
+void dijkstra(int cost[][100], int source){
     dist[source] = 0;
-    pq.push({0, source});  // {distance, node}
 
-    while (!pq.empty()) {
-        int u = pq.top().second;
-        pq.pop();
-
-        if (visited[u]) continue;
+    for(int i=0; i<V; i++){
+        int u = findMinimum();
         visited[u] = true;
 
-        for (auto edge : adj[u]) {
-            int v = edge.first;
-            int weight = edge.second;
-
-            if (!visited[v] && dist[u] + weight < dist[v]) {
-                dist[v] = dist[u] + weight;
-                pq.push({dist[v], v});
+        for(int v = 0; v < V; v++){
+            if(!visited[v] && cost[u][v]!=0){
+                if(dist[v]> dist[u]+cost[u][v]){
+                    dist[v] = dist[u]+cost[u][v];
+                }
             }
         }
     }
 
-    // Output the distances
-    for (int i = 0; i < V; i++) {
-        if (dist[i] == INF) {
-            cout << i << " is unreachable from the source." << endl;
-        } else {
-            cout << i << " " << dist[i] << endl;
+    //print
+    for(int i = 0; i<V; i++){
+        if(dist[i] == INT_MAX){
+            cout<<i<<" is unreachable from the source."<<endl;
+        }else{
+            cout<<i<<" "<<dist[i]<< endl;
         }
     }
 }
 
-int main() {
-    cout << "Enter the number of vertices: ";
-    cin >> V;
-    cout << "Enter the number of edges: ";
-    cin >> E;
+int main(){
+    
+    cout<<"Enter the number of vertex: ";
+    cin>>V;
 
-    vector<vector<pair<int, int>>> adj(V);  // Adjacency list
+    cout<<"Enter the number of edges: ";
+    cin>>E;
 
-    for (int i = 0; i < E; i++) {
+    int cost[100][100];
+    
+    for(int i=0; i<100; i++){
+        for(int j=0; j<100; j++){
+            cost[i][j] = 0;
+        }
+    }
+
+    initialize();
+
+    for(int i=0; i<E; i++){
         int u, v, weight;
-        cout << "Enter start node, end node and weight: ";
-        cin >> u >> v >> weight;
-        adj[u].push_back({v, weight});
-        adj[v].push_back({u, weight});  // Comment this line for directed graph
+        cout<<"Enter start node, end node and weight: ";
+        cin>>u>>v>>weight;
+        cost[u][v] = weight; //for directional graph
+        cost[v][u] = weight; //for bidirectional graph
     }
 
     int source;
-    cout << "Enter source node: ";
-    cin >> source;
+    cin>>source;
 
-    dijkstra(adj, source);
-
-    return 0;
+    dijkstra(cost, source);
 }
